@@ -9,7 +9,6 @@ const userSchema = mongoose.Schema({
     adminId:{
         type:String,
         unique:true,
-        minLength:5,
         trim:true,
         default:""
 

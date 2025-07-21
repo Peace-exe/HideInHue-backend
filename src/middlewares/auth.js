@@ -1,4 +1,4 @@
-const JWT_PRIVATE_KEY=require("../utils/constants");
+const {JWT_PRIVATE_KEY}=require("../utils/constants");
 const User = require("../models/user");
 const jwt = require("jsonwebtoken");
 
@@ -13,7 +13,7 @@ const userAuth= async (req,res,next)=>{
         }
 
         //verify the token
-        const payload= await jwt.verify(token , JWT_PRIVATE_KEY);
+        const payload= jwt.verify(token , JWT_PRIVATE_KEY);
         const {_id} = payload;
 
         // find the user in the db 

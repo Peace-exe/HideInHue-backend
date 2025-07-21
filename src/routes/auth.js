@@ -61,7 +61,7 @@ authRouter.post("/createUser",userAuth,authorizeRole(['admin']) ,async(req,res)=
         delete userObj.password;
 
         res.status(201).json({
-            message : "admin created successfully!",
+            message : "User created successfully!",
             userObj
         });
 
