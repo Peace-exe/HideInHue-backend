@@ -13,9 +13,11 @@ app.use(cookieParser());
 
 const authRouter = require("./src/routes/auth");
 const profileRouter = require("./src/routes/profile");
+const stegoRouter = require("./src/routes/stego");
 
 app.use("",authRouter);
 app.use("",profileRouter);
+app.use("",stegoRouter);
 
 
 

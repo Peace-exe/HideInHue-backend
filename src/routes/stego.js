@@ -53,3 +53,5 @@ stegoRouter.post("/sendStegoMsg",userAuth,uploadImg.single("imgFile"),async(req,
         res.status(400).send("FAILED: "+err.message);
     }
 });
+
+module.exports = stegoRouter;
