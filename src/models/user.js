@@ -1,5 +1,7 @@
 const mongoose= require("mongoose");
 const validator = require("validator");
+const admins = require("../utils/adminId");
+const bcrypt = require("bcrypt");
 
 
 const userSchema = mongoose.Schema({
@@ -23,8 +25,8 @@ const userSchema = mongoose.Schema({
         type:String,
         required:true,
         trim:true,
-        minLangth:1,
-        maxlength:50
+        minLength:1,
+        maxLength:50
     },
     lastName: {
         type:String,
@@ -38,6 +40,7 @@ const userSchema = mongoose.Schema({
         required:true,
         unique : true,
         trim : true,
+        lowercase : true,
         minLength:1,
         validate(value){
             if(!validator.isEmail(value)){
@@ -69,15 +72,15 @@ const userSchema = mongoose.Schema({
 );
 
 userSchema.pre('validate', function (next) {
-    if (this.adminId === "") {
+    if (!this.adminId || this.adminId === "") {
         this.role = 'user';
-    }
-    if (typeof this.adminId === 'string' && this.adminId.length > 4) {
+    } else if (typeof this.adminId === 'string' && admins.includes(this.adminId)) {
         this.role = 'admin';
     }
     
     next();
 });
+
 
 userSchema.methods.validatePassword = async function(passwordInputByUser){
     const user= this;

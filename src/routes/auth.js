@@ -6,6 +6,7 @@ const jwt = require("jsonwebtoken");
 const {JWT_PRIVATE_KEY}= require("../utils/constants");
 const authorizeRole = require("../middlewares/authorizeRole");
 const { userAuth } = require("../middlewares/auth");
+const validator = require("validator");
 
 const authRouter = express.Router();
 
@@ -36,7 +37,7 @@ authRouter.post("/createAdmin", async (req,res)=>{
             userObj
         });
     } catch (error) {
-        res.status(400).send("Failed.\n"+error.message);
+        res.status(400).send("Failed.");
     }
 });
 
@@ -73,9 +74,10 @@ authRouter.post("/login",async(req,res)=>{
     try {
         const {email, password} = req.body;
 
-        if(!validator.isEmail(email)){
+        if (!email || !validator.isEmail(email)) {
             throw new Error("Invalid Credentials.");
         }
+
         const userData = await User.findOne({email});
         if(!userData){
             throw new Error("Invalid Credentials.");
@@ -87,7 +89,7 @@ authRouter.post("/login",async(req,res)=>{
             throw new Error("Invalid Credentials.");
         }
         else{
-            const token = await jwt.sign({_id : userData._id}, JWT_PRIVATE_KEY,{
+            const token = jwt.sign({_id : userData._id}, JWT_PRIVATE_KEY,{
             expiresIn:"1d"
             });
 
@@ -95,11 +97,11 @@ authRouter.post("/login",async(req,res)=>{
                 expires:new Date(Date.now()+24*3600000)
             });
                     
-            const {_id,firstName,lastName,email,designation,createdAt}= userData;
+            const {_id,role,firstName,lastName,email,designation,createdAt}= userData;
             
                     
             res.status(200).json({
-                _id,firstName,lastName,email,designation,createdAt
+                _id,role,firstName,lastName,email,designation,createdAt
             });
         }
 
@@ -108,7 +110,7 @@ authRouter.post("/login",async(req,res)=>{
         
 
     } catch (error) {
-        res.status(400).send("Invalid Credentials");
+        res.status(400).send("Invalid Credentials "+error.message);
     }
 })
 

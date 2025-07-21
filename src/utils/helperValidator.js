@@ -1,5 +1,5 @@
 const validator = require('validator');
-const adminList = require('./admins'); 
+const admins = require('./adminId'); 
 
 const validateSignUpData = (req)=>{
     const {firstName,lastName,email,password}= req.body;
