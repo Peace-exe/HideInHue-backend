@@ -6,7 +6,7 @@ const embedMsg = require("../../steganography/embedMsg/embedMsg");
 const bcrypt = require("bcrypt");
 const imgToArray = require("../../steganography/embedMsg/imgToBuffer");
 const StegoMsg = require("../models/sendStegoMsg");
-
+const fs = require('fs');
 
 const stegoRouter = express.Router();
 
@@ -44,6 +44,9 @@ stegoRouter.post("/sendStegoMsg",userAuth,uploadImg.single("imgFile"),async(req,
 
         const msgData = await newStegoMsg.save();
 
+        fs.unlinkSync(inputImg.path);
+        fs.unlinkSync(outputImgPath);
+
         res.json({
             message:"stego message sent successfully!",
             stegoMsgData:msgData
@@ -54,4 +57,7 @@ stegoRouter.post("/sendStegoMsg",userAuth,uploadImg.single("imgFile"),async(req,
     }
 });
 
+stegoRouter.post("/recoverStegoMsg",userAuth,async(req,res)=>{
+
+})
 module.exports = stegoRouter;
