@@ -7,13 +7,14 @@ const bcrypt = require("bcrypt");
 const imgToArray = require("../../steganography/embedMsg/imgToBuffer");
 const StegoMsg = require("../models/sendStegoMsg");
 const fs = require('fs');
+const path = require('path');
 
 const stegoRouter = express.Router();
 
 stegoRouter.post("/sendStegoMsg",userAuth,uploadImg.single("imgFile"),async(req,res)=>{
 
     let inputImg = null;  // Declare here
-    const outputImgPath = '../imgUploads/outputImg/outputImg.jpg';
+    const outputImgPath = path.join(__dirname, '../imgUploads/outputImg/outputImg.jpg');
 
     try {
         const fromUserId = req.user._id;
@@ -36,7 +37,10 @@ stegoRouter.post("/sendStegoMsg",userAuth,uploadImg.single("imgFile"),async(req,
             throw new Error("Invalid stego key.");
         }
 
+        
         const recoverykey = await embedMsg(inputImg.path,outputImgPath,stegoMsg,stegoKey);
+        
+        
 
         const recoveryKeyHash= await bcrypt.hash(recoverykey,10);
 
@@ -45,7 +49,11 @@ stegoRouter.post("/sendStegoMsg",userAuth,uploadImg.single("imgFile"),async(req,
         const newStegoMsg = new StegoMsg({
             fromUserId,
             toUserId : toUserData._id,
-            imageBuffer : imgBuffer,
+            imageBuffer: {
+                data: imgBuffer,
+                contentType: 'image/jpeg'  // or req.file.mimetype for dynamic type
+            },
+
             width,
             height,
             channels,
@@ -56,7 +64,7 @@ stegoRouter.post("/sendStegoMsg",userAuth,uploadImg.single("imgFile"),async(req,
 
         res.json({
             message:"stego message sent successfully!",
-            stegoMsgData:msgData
+            recoveryKey:recoverykey
         })
 
     } catch (err) {

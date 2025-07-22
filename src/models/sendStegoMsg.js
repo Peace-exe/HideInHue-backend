@@ -12,10 +12,15 @@ const StegoMsgSchema = mongoose.Schema({
         required:true,
         ref : "User"
     },
-    imageBuffer:{
-        data : Buffer,
-        contentType:'image/jpeg',
-        required:true
+    imageBuffer: {
+        data: {
+            type: Buffer,
+            required: true
+        },
+        contentType: {
+            type: String,
+            required: true
+        }
     },
     width :{
         type:Number,
@@ -33,7 +38,7 @@ const StegoMsgSchema = mongoose.Schema({
         type:String,
         required:true
     }
-});
+},{ timestamps: true });
 StegoMsgSchema.pre("save", function (next){
     const StegoMsg = this;
 
@@ -45,12 +50,13 @@ StegoMsgSchema.pre("save", function (next){
 
 });
 
-StegoMsgSchema.methods.validatePassword = async function(passwordInputByUser){
-    const user= this;
-    const passwordHash= user.password;
-   const isPasswordValid= await bcrypt.compare(passwordInputByUser, passwordHash);
-   return isPasswordValid;
-}
+StegoMsgSchema.methods.validateRecoveryKey = async function(recoveryKeyInputByUser) {
+    const stegoMsg = this;
+    const recoveryKeyHash = stegoMsg.recoveryKeyHash;
+    const isKeyValid = await bcrypt.compare(recoveryKeyInputByUser, recoveryKeyHash);
+    return isKeyValid;
+};
+
 StegoMsgSchema.index({fromUserId:1, toUserId:1});
 
 const StegoMsg = mongoose.model("StegoMsg",StegoMsgSchema);
