@@ -11,12 +11,20 @@ const fs = require('fs');
 const stegoRouter = express.Router();
 
 stegoRouter.post("/sendStegoMsg",userAuth,uploadImg.single("imgFile"),async(req,res)=>{
+
+    let inputImg = null;  // Declare here
+    const outputImgPath = '../imgUploads/outputImg/outputImg.jpg';
+
     try {
         const fromUserId = req.user._id;
         const {toUserEmail ,stegoKey,stegoMsg} = req.body;
-        const inputImg = req.file;
 
-        const outputImgPath = '../imgUploads/outputImg/outputImg.jpg';
+        if (!req.file) {
+            return res.status(400).send("No image file provided.");
+        }
+        inputImg = req.file;
+
+        // const outputImgPath = '../imgUploads/outputImg/outputImg.jpg';
 
         const toUserData = await User.findOne({email:toUserEmail});
         if(!toUserData){
@@ -29,6 +37,7 @@ stegoRouter.post("/sendStegoMsg",userAuth,uploadImg.single("imgFile"),async(req,
         }
 
         const recoverykey = await embedMsg(inputImg.path,outputImgPath,stegoMsg,stegoKey);
+
         const recoveryKeyHash= await bcrypt.hash(recoverykey,10);
 
         const {pixels:imgBuffer,width,height,channels} = await imgToArray(outputImgPath);
@@ -39,13 +48,11 @@ stegoRouter.post("/sendStegoMsg",userAuth,uploadImg.single("imgFile"),async(req,
             imageBuffer : imgBuffer,
             width,
             height,
-            channels
+            channels,
+            recoveryKeyHash
         })
 
         const msgData = await newStegoMsg.save();
-
-        fs.unlinkSync(inputImg.path);
-        fs.unlinkSync(outputImgPath);
 
         res.json({
             message:"stego message sent successfully!",
@@ -53,7 +60,11 @@ stegoRouter.post("/sendStegoMsg",userAuth,uploadImg.single("imgFile"),async(req,
         })
 
     } catch (err) {
-        res.status(400).send("FAILED: "+err.message);
+        res.status(500).send("FAILED: "+err.message);
+    }
+    finally {
+        if (inputImg?.path && fs.existsSync(inputImg.path)) fs.unlinkSync(inputImg.path);
+        if (fs.existsSync(outputImgPath)) fs.unlinkSync(outputImgPath);
     }
 });
 
