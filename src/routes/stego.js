@@ -98,7 +98,7 @@ stegoRouter.post("/recoverStegoMsg",userAuth,async(req,res)=>{
             throw new Error("Incorrect Recovery Key.");
         }
 
-        await bufferToImg(imageBuffer,width,height,channels,imgPath);
+        await bufferToImg(imageBuffer.data,width,height,channels,imgPath);
 
         const recoveredMsg = await recoverMsg(imgPath,recoveryKey,tolerance);
 
