@@ -79,10 +79,10 @@ const getPixelPositions = async (imgPath, recoveryKey) => {
     return { pixelPositionArray, pixelArray, msgSize };
 };
 
-const getBits = ({ pixelPositionArray, pixelArray, msgSize }) => {
+const getBits = ({ pixelPositionArray, pixelArray, msgSize ,tolerance}) => {
     let msgBits = [];
     const l = 15;
-    const tolerance = 15;
+    //const tolerance = 15;
     const modBase = 4 * l;
 
     if (pixelPositionArray.length !== msgSize) {
@@ -129,11 +129,11 @@ const processBits = (msgBits) => {
 };
 
 
-const recoverMsg = async (imgPath, recoveryKey) => {
+const recoverMsg = async (imgPath, recoveryKey,tolerance) => {
     try {
         const { pixelPositionArray, pixelArray, msgSize } = await getPixelPositions(imgPath, recoveryKey);
         //console.log(pixelPositionArray);
-        const msgBits = getBits({ pixelPositionArray, pixelArray, msgSize });
+        const msgBits = getBits({ pixelPositionArray, pixelArray, msgSize, tolerance });
         console.log(msgBits)
         const message = processBits(msgBits);
         return message;

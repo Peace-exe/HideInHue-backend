@@ -8,6 +8,8 @@ const imgToArray = require("../../steganography/embedMsg/imgToBuffer");
 const StegoMsg = require("../models/sendStegoMsg");
 const fs = require('fs');
 const path = require('path');
+const bufferToImg = require("../../steganography/embedMsg/bufferToImg");
+const recoverMsg = require("../../steganography/recoverMsg/recoverMsg");
 
 const stegoRouter = express.Router();
 
@@ -78,5 +80,39 @@ stegoRouter.post("/sendStegoMsg",userAuth,uploadImg.single("imgFile"),async(req,
 
 stegoRouter.post("/recoverStegoMsg",userAuth,async(req,res)=>{
 
+    const imgPath = path.join(__dirname, '../imgUploads/modifiedImg/img1.jpg');
+
+    try {
+        const {recoveryKey,tolerance, _id, fromUserId,toUserId}= req.body;
+
+        const stegoMsg = await StegoMsg.findOne({
+            _id,
+            fromUserId,
+            toUserId
+        });
+        const {imageBuffer,width,height,channels,recoveryKeyHash } = stegoMsg;
+
+        const isRecoveryKeyValid = await stegoMsg.validateRecoveryKey(recoveryKey);
+
+        if(!isRecoveryKeyValid){
+            throw new Error("Incorrect Recovery Key.");
+        }
+
+        await bufferToImg(imageBuffer,width,height,channels,imgPath);
+
+        const recoveredMsg = await recoverMsg(imgPath,recoveryKey,tolerance);
+
+        res.status(200).json({
+            message:"StegoMsg recovered successfully!",
+            recoveredMsg: recoveredMsg
+        });
+
+
+    } catch (err) {
+        res.status(500).send("Failed: "+err.message);
+    }
+    finally{
+        if (fs.existsSync(imgPath)) fs.unlinkSync(imgPath);
+    }
 })
 module.exports = stegoRouter;
