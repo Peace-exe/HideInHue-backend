@@ -17,7 +17,7 @@ const validateSignUpData = (req)=>{
 const validateAdminSignUpData = (req)=>{
     const {adminId, firstName, lastName, email , password} = req.body;
 
-    if(adminId!=="" && !adminList.includes(adminId)){
+    if(adminId!=="" && !admins.includes(adminId)){
         throw new Error('Admins must have an AdminId');
     }
     else if(!firstName||!lastName){

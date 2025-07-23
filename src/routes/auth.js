@@ -37,7 +37,7 @@ authRouter.post("/createAdmin", async (req,res)=>{
             userObj
         });
     } catch (error) {
-        res.status(400).send("Failed.");
+        res.status(400).send("Failed: "+error.message);
     }
 });
 
@@ -101,7 +101,7 @@ authRouter.post("/login",async(req,res)=>{
             
                     
             res.status(200).json({
-                _id,role,firstName,lastName,email,designation,createdAt
+               data:{ _id,role,firstName,lastName,email,designation,createdAt}
             });
         }
 
