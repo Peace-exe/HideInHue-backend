@@ -17,6 +17,11 @@ authRouter.post("/createAdmin", async (req,res)=>{
 
         const {adminId,firstName,lastName,email,password}=req.body;
 
+        const adminExists = await User.find({adminId:adminId});
+        if(adminExists){
+            throw new Error("Invalid adminId.");
+        }
+
         const passwordHash = await bcrypt.hash(password,10);
 
         const user = new User({

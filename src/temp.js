@@ -8,10 +8,9 @@ const userSchema = mongoose.Schema({
     
     adminId:{
         type:String,
-        trim:true,
         unique:true,
-        sparse:true
-        
+        trim:true,
+        sparse :true
 
     },
 
